@@ -22,20 +22,14 @@ pub mod graph {
                     }
                 }
 
-                // TODO duplicated, extract to trait
                 pub fn with_attrs(mut self, attrs: &[(&str, &str)]) -> Self {
-                    // FIXME try to change to &str instead of strings?
                     self.attrs
                         .extend(attrs.iter().map(|(k, v)| (k.to_string(), v.to_string())));
                     self
                 }
 
                 pub fn get_attr(&self, key: &str) -> Option<&str> {
-                    if let Some(v) = self.attrs.get(key) {
-                        Some(&v)
-                    } else {
-                        None
-                    }
+                    self.attrs.get(key).map(String::as_str)
                 }
             }
         }
@@ -59,9 +53,7 @@ pub mod graph {
                     }
                 }
 
-                // TODO duplicated, extract to trait
                 pub fn with_attrs(mut self, attrs: &[(&str, &str)]) -> Self {
-                    // FIXME try to change to &str instead of strings?
                     self.attrs
                         .extend(attrs.iter().map(|(k, v)| (k.to_string(), v.to_string())));
                     self
@@ -87,20 +79,16 @@ pub mod graph {
         }
 
         pub fn with_nodes(mut self, nodes: &[Node]) -> Self {
-            // FIXME move instead of clone?
             self.nodes.extend_from_slice(nodes);
             self
         }
 
         pub fn with_edges(mut self, edges: &[Edge]) -> Self {
-            // FIXME move instead of clone?
             self.edges.extend_from_slice(edges);
             self
         }
 
-        // TODO duplicated, extract to trait
         pub fn with_attrs(mut self, attrs: &[(&str, &str)]) -> Self {
-            // FIXME try to change to &str instead of strings?
             self.attrs
                 .extend(attrs.iter().map(|(k, v)| (k.to_string(), v.to_string())));
             self
