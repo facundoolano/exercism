@@ -28,11 +28,14 @@ impl<T> SimpleLinkedList<T> {
     }
 
     pub fn push(&mut self, element: T) {
-        // FIXME pretty much duplicates add_to_last
-        if let Some(node) = &mut self.head {
-            Self::add_to_last(node, element)
+        Self::add_to_last(&mut self.head, element)
+    }
+
+    fn add_to_last(maybe_node: &mut Option<Box<Node<T>>>, element: T) {
+        if let Some(node) = maybe_node {
+            Self::add_to_last(&mut node.next, element);
         } else {
-            self.head = Self::new_node(element);
+            *maybe_node = Self::new_node(element);
         }
     }
 
@@ -41,14 +44,6 @@ impl<T> SimpleLinkedList<T> {
             data: element,
             next: None,
         }))
-    }
-
-    fn add_to_last(node: &mut Node<T>, element: T) {
-        if let Some(next) = &mut node.next {
-            Self::add_to_last(next, element);
-        } else {
-            node.next = Self::new_node(element);
-        }
     }
 
     pub fn pop(&mut self) -> Option<T> {
