@@ -39,15 +39,28 @@ impl<T> SimpleLinkedList<T> {
         }
     }
 
-    fn new_node(element: T) -> Option<Box<Node<T>>> {
-        Some(Box::new(Node {
-            data: element,
-            next: None,
-        }))
+    pub fn pop(&mut self) -> Option<T>
+    where
+        T: Clone,
+    {
+        Self::remove_from_last(&mut self.head)
     }
 
-    pub fn pop(&mut self) -> Option<T> {
-        unimplemented!()
+    fn remove_from_last(maybe_node: &mut Option<Box<Node<T>>>) -> Option<T>
+    where
+        T: Clone,
+    {
+        if let Some(node) = maybe_node {
+            if node.next.is_some() {
+                Self::remove_from_last(&mut node.next)
+            } else {
+                let value = node.data.clone();
+                *maybe_node = None;
+                Some(value)
+            }
+        } else {
+            None
+        }
     }
 
     pub fn peek(&self) -> Option<&T> {
@@ -57,22 +70,50 @@ impl<T> SimpleLinkedList<T> {
             None
         }
     }
+
+    fn new_node(element: T) -> Option<Box<Node<T>>> {
+        Some(Box::new(Node {
+            data: element,
+            next: None,
+        }))
+    }
 }
 
 impl<T: Clone> SimpleLinkedList<T> {
     pub fn rev(&self) -> SimpleLinkedList<T> {
-        unimplemented!()
+        let mut next = &self.head;
+        let mut result = Self::new();
+
+        while let Some(node) = &next {
+            let previous_head = result.head;
+            result.head = Some(Box::new(Node {
+                data: node.data.clone(),
+                next: previous_head,
+            }));
+            next = &node.next;
+        }
+        result
     }
 }
 
 impl<'a, T: Clone> From<&'a [T]> for SimpleLinkedList<T> {
-    fn from(_item: &[T]) -> Self {
-        unimplemented!()
+    fn from(slice: &[T]) -> Self {
+        let mut result = Self::new();
+        for item in slice.iter() {
+            result.push(item.clone());
+        }
+        result
     }
 }
 
 impl<T> Into<Vec<T>> for SimpleLinkedList<T> {
     fn into(self) -> Vec<T> {
-        unimplemented!()
+        let mut next = self.head;
+        let mut result: Vec<T> = vec![];
+        while let Some(node) = next {
+            result.push(node.data);
+            next = node.next;
+        }
+        result
     }
 }
