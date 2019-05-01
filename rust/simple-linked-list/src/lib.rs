@@ -28,54 +28,25 @@ impl<T> SimpleLinkedList<T> {
     }
 
     pub fn push(&mut self, element: T) {
-        Self::add_to_last(&mut self.head, element)
+        self.head = Self::new_node(element, self.head.take());
     }
 
-    fn add_to_last(maybe_node: &mut Option<Box<Node<T>>>, element: T) {
-        if let Some(node) = maybe_node {
-            Self::add_to_last(&mut node.next, element);
-        } else {
-            *maybe_node = Self::new_node(element);
-        }
-    }
-
-    pub fn pop(&mut self) -> Option<T>
-    where
-        T: Clone,
-    {
-        Self::remove_from_last(&mut self.head)
-    }
-
-    fn remove_from_last(maybe_node: &mut Option<Box<Node<T>>>) -> Option<T>
-    where
-        T: Clone,
-    {
-        if let Some(node) = maybe_node {
-            if node.next.is_some() {
-                Self::remove_from_last(&mut node.next)
-            } else {
-                let value = node.data.clone();
-                *maybe_node = None;
-                Some(value)
-            }
+    pub fn pop(&mut self) -> Option<T> {
+        let head = self.head.take();
+        if let Some(node) = head {
+            self.head = node.next;
+            Some(node.data)
         } else {
             None
         }
     }
 
     pub fn peek(&self) -> Option<&T> {
-        if let Some(node) = &self.head {
-            Some(&node.data)
-        } else {
-            None
-        }
+        self.head.as_ref().map(|node| &node.data)
     }
 
-    fn new_node(element: T) -> Option<Box<Node<T>>> {
-        Some(Box::new(Node {
-            data: element,
-            next: None,
-        }))
+    fn new_node(data: T, next: Option<Box<Node<T>>>) -> Option<Box<Node<T>>> {
+        Some(Box::new(Node { data, next }))
     }
 }
 
@@ -86,10 +57,7 @@ impl<T: Clone> SimpleLinkedList<T> {
 
         while let Some(node) = &next {
             let previous_head = result.head;
-            result.head = Some(Box::new(Node {
-                data: node.data.clone(),
-                next: previous_head,
-            }));
+            result.head = Self::new_node(node.data.clone(), previous_head);
             next = &node.next;
         }
         result
@@ -114,6 +82,7 @@ impl<T> Into<Vec<T>> for SimpleLinkedList<T> {
             result.push(node.data);
             next = node.next;
         }
+        result.reverse();
         result
     }
 }
