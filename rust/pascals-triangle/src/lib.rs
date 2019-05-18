@@ -4,23 +4,24 @@ pub struct PascalsTriangle {
 
 impl PascalsTriangle {
     pub fn new(row_count: u32) -> Self {
-        let mut rows = Vec::new();
-        let row_count = row_count as usize;
+        let mut rows = vec![];
 
-        for row in 0..row_count {
-            rows.push(Vec::new());
-
-            for column in 0..=row {
-                let value = match (row, column) {
-                    (_, 0) => 1,
-                    (_, column) if column == row => 1,
-                    (_row, _column) => rows[row - 1][column - 1] + rows[row - 1][column],
-                };
-
-                rows[row].push(value);
-            }
+        for row in 0..row_count as usize {
+            let columns = (0..=row)
+                .map(|column| Self::value_at(&rows, row, column))
+                .collect();
+            rows.push(columns);
         }
+
         Self { rows }
+    }
+
+    fn value_at(rows: &[Vec<u32>], row: usize, column: usize) -> u32 {
+        match (row, column) {
+            (_, 0) => 1,
+            (_, column) if column == row => 1,
+            (row, column) => rows[row - 1][column - 1] + rows[row - 1][column],
+        }
     }
 
     pub fn rows(&self) -> Vec<Vec<u32>> {
